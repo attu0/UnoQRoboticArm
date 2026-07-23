@@ -1,0 +1,9 @@
+profiles:
+  default:
+    fqbn: 
+    platforms:
+      - platform: arduino:zephyr
+    libraries:
+      - Servo_Motor_Module (0.5.4)
+
+default_profile: default
