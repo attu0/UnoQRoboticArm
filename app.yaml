@@ -2,5 +2,5 @@ name: RoboticArm
 description: using cnc shiled and uno q
 ports: []
 bricks:
-- arduino:web_ui: {}
+- arduino:streamlit_ui: {}
 icon: 😀

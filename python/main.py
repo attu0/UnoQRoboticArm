@@ -1,24 +1,39 @@
-from arduino.app_utils import *
-import time
+from arduino.app_bricks.streamlit_ui import st
+from arduino.app_utils import App, Bridge
 
-def loop():
-    print("Setting X forward...")
-    Bridge.call("set_motor_x", 1)
-    time.sleep(2)
 
-    print("Stopping X...")
-    Bridge.call("set_motor_x", 0)
-    time.sleep(1)
+def set_motor(axis, direction):
+    Bridge.call(f"set_motor_{axis}", direction)
 
-    print("Setting X backward...")
-    Bridge.call("set_motor_x", -1)
-    time.sleep(2)
 
-    print("Stopping X...")
-    Bridge.call("set_motor_x", 0)
+def stop_motor(axis):
+    Bridge.call(f"stop_motor_{axis}")
 
-    state = Bridge.call("get_motor_x")
-    print(f"Current direction: {state}")
-    time.sleep(3)
 
-App.run(user_loop=loop)
+def axis_controls(axis):
+    st.subheader(f"{axis.upper()} axis")
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        if st.button("↻ CW", key=f"{axis}_cw"):
+            set_motor(axis, 1)
+
+    with col2:
+        if st.button("■ Stop", key=f"{axis}_stop"):
+            stop_motor(axis)
+
+    with col3:
+        if st.button("↺ CCW", key=f"{axis}_ccw"):
+            set_motor(axis, -1)
+
+
+st.title("Robotic Arm Control")
+
+for axis in ["x", "y", "z"]:
+    axis_controls(axis)
+
+st.divider()
+if st.button("STOP ALL", type="primary"):
+    Bridge.call("stop_all")
+
+App.run()
