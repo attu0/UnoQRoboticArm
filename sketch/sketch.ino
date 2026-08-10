@@ -1,4 +1,7 @@
-c
+#include "Arduino_RouterBridge.h"
+#include <CNCShield.h>
+#include <AccelStepper.h>
+
 // ============================================================
 // CNC SHIELD
 // ============================================================
