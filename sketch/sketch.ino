@@ -13,12 +13,21 @@ StepperMotor *motorY;
 StepperMotor *motorZ;
 
 // ============================================================
+// A AXIS — driven directly, bypassing CNCShield (library only
+// supports 3 motors). Standard CNC Shield V3 A-axis pins.
+// ============================================================
+
+#define A_STEP_PIN 12
+#define A_DIR_PIN  13
+
+// ============================================================
 // FIXED MOTOR SPEEDS
 // ============================================================
 
 const float X_SPEED = 50.0;
 const float Y_SPEED = 50.0;
 const float Z_SPEED = 50.0;
+const float A_SPEED = 50.0;
 
 // ============================================================
 // CURRENT MOTOR STATE (-1, 0, 1)
@@ -27,6 +36,7 @@ const float Z_SPEED = 50.0;
 int directionX = 0;
 int directionY = 0;
 int directionZ = 0;
+int directionA = 0;
 
 // ============================================================
 // ACCELSTEPPER CALLBACKS
@@ -44,12 +54,18 @@ void zBackward() { motorZ->step(COUNTER); }
 AccelStepper stepperX(xForward, xBackward);
 AccelStepper stepperY(yForward, yBackward);
 AccelStepper stepperZ(zForward, zBackward);
+AccelStepper stepperA(AccelStepper::DRIVER, A_STEP_PIN, A_DIR_PIN);
 
 // ============================================================
 // SETUP
 // ============================================================
 
 void setup() {
+  Bridge.begin();   // must come first, before any Bridge.provide()
+
+  pinMode(A_STEP_PIN, OUTPUT);
+  pinMode(A_DIR_PIN, OUTPUT);
+
   cnc_shield.begin();
 
   motorX = cnc_shield.get_motor(0);
@@ -59,26 +75,29 @@ void setup() {
   stepperX.setMaxSpeed(X_SPEED);
   stepperY.setMaxSpeed(Y_SPEED);
   stepperZ.setMaxSpeed(Z_SPEED);
+  stepperA.setMaxSpeed(A_SPEED);
 
   stepperX.setSpeed(0);
   stepperY.setSpeed(0);
   stepperZ.setSpeed(0);
-
-  Bridge.begin();
+  stepperA.setSpeed(0);
 
   Bridge.provide("set_motor_x", set_motor_x);
   Bridge.provide("set_motor_y", set_motor_y);
   Bridge.provide("set_motor_z", set_motor_z);
+  Bridge.provide("set_motor_a", set_motor_a);
 
   Bridge.provide("stop_motor_x", stop_motor_x);
   Bridge.provide("stop_motor_y", stop_motor_y);
   Bridge.provide("stop_motor_z", stop_motor_z);
+  Bridge.provide("stop_motor_a", stop_motor_a);
 
   Bridge.provide("stop_all", stop_all);
 
   Bridge.provide("get_motor_x", get_motor_x);
   Bridge.provide("get_motor_y", get_motor_y);
   Bridge.provide("get_motor_z", get_motor_z);
+  Bridge.provide("get_motor_a", get_motor_a);
 }
 
 // ============================================================
@@ -89,6 +108,7 @@ void loop() {
   stepperX.runSpeed();
   stepperY.runSpeed();
   stepperZ.runSpeed();
+  stepperA.runSpeed();
 }
 
 // ============================================================
@@ -113,6 +133,12 @@ void set_motor_z(int direction) {
   stepperZ.setSpeed(directionZ * Z_SPEED);
 }
 
+void set_motor_a(int direction) {
+  direction = clampDirection(direction);
+  directionA = direction;
+  stepperA.setSpeed(directionA * A_SPEED);
+}
+
 // ============================================================
 // STOP INDIVIDUAL MOTORS
 // ============================================================
@@ -132,6 +158,11 @@ void stop_motor_z() {
   stepperZ.setSpeed(0);
 }
 
+void stop_motor_a() {
+  directionA = 0;
+  stepperA.setSpeed(0);
+}
+
 // ============================================================
 // STOP ALL
 // ============================================================
@@ -140,6 +171,7 @@ void stop_all() {
   stop_motor_x();
   stop_motor_y();
   stop_motor_z();
+  stop_motor_a();
 }
 
 // ============================================================
@@ -149,6 +181,7 @@ void stop_all() {
 int get_motor_x() { return directionX; }
 int get_motor_y() { return directionY; }
 int get_motor_z() { return directionZ; }
+int get_motor_a() { return directionA; }
 
 // ============================================================
 // HELPER

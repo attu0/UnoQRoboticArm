@@ -29,7 +29,7 @@ def axis_controls(axis):
 
 st.title("Robotic Arm Control")
 
-for axis in ["x", "y", "z"]:
+for axis in ["x", "y", "z", "a"]:
     axis_controls(axis)
 
 st.divider()
