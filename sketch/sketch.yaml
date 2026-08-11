@@ -7,5 +7,6 @@ profiles:
       - Servo_Motor_Module (0.5.4)
       - CNCShield (2.0.0)
       - AccelStepper (1.64.0)
+      - Servo (1.3.0)
 
 default_profile: default

@@ -27,10 +27,20 @@ def axis_controls(axis):
             set_motor(axis, -1)
 
 
+def servo_controls():
+    st.subheader("Servo (Gripper)")
+    angle = st.slider("Angle", min_value=0, max_value=180, value=90, key="servo_angle_slider")
+    if st.button("Set angle", key="servo_set"):
+        Bridge.call("set_servo_angle", angle)
+
+
 st.title("Robotic Arm Control")
 
 for axis in ["x", "y", "z", "a"]:
     axis_controls(axis)
+
+st.divider()
+servo_controls()
 
 st.divider()
 if st.button("STOP ALL", type="primary"):

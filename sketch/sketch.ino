@@ -1,6 +1,7 @@
 #include "Arduino_RouterBridge.h"
 #include <CNCShield.h>
 #include <AccelStepper.h>
+#include <Servo.h>
 
 // ============================================================
 // CNC SHIELD
@@ -19,6 +20,15 @@ StepperMotor *motorZ;
 
 #define A_STEP_PIN 12
 #define A_DIR_PIN  13
+
+// ============================================================
+// SERVO (MG996R) — separate power supply, shared ground.
+// ============================================================
+
+#define SERVO_PIN 9
+
+Servo gripperServo;
+int servoAngle = 90;  // start centered
 
 // ============================================================
 // FIXED MOTOR SPEEDS
@@ -82,6 +92,9 @@ void setup() {
   stepperZ.setSpeed(0);
   stepperA.setSpeed(0);
 
+  gripperServo.attach(SERVO_PIN);
+  gripperServo.write(servoAngle);
+
   Bridge.provide("set_motor_x", set_motor_x);
   Bridge.provide("set_motor_y", set_motor_y);
   Bridge.provide("set_motor_z", set_motor_z);
@@ -98,6 +111,9 @@ void setup() {
   Bridge.provide("get_motor_y", get_motor_y);
   Bridge.provide("get_motor_z", get_motor_z);
   Bridge.provide("get_motor_a", get_motor_a);
+
+  Bridge.provide("set_servo_angle", set_servo_angle);
+  Bridge.provide("get_servo_angle", get_servo_angle);
 }
 
 // ============================================================
@@ -109,6 +125,7 @@ void loop() {
   stepperY.runSpeed();
   stepperZ.runSpeed();
   stepperA.runSpeed();
+  // servo needs no per-loop call — Servo.write() handles PWM internally
 }
 
 // ============================================================
@@ -182,6 +199,21 @@ int get_motor_x() { return directionX; }
 int get_motor_y() { return directionY; }
 int get_motor_z() { return directionZ; }
 int get_motor_a() { return directionA; }
+
+// ============================================================
+// SERVO CONTROL
+// ============================================================
+
+void set_servo_angle(int angle) {
+  if (angle < 0) angle = 0;
+  if (angle > 180) angle = 180;
+  servoAngle = angle;
+  gripperServo.write(servoAngle);
+}
+
+int get_servo_angle() {
+  return servoAngle;
+}
 
 // ============================================================
 // HELPER
