@@ -97,20 +97,19 @@ void setup() {
 
   Bridge.provide("set_motor_x", set_motor_x);
   Bridge.provide("set_motor_y", set_motor_y);
-  Bridge.provide("set_motor_z", set_motor_z);
-  Bridge.provide("set_motor_a", set_motor_a);
+
+  // Z and A are now driven together as one joint — see set_joint_za()
+  Bridge.provide("set_joint_za", set_joint_za);
+  Bridge.provide("stop_joint_za", stop_joint_za);
+  Bridge.provide("get_joint_za", get_joint_za);
 
   Bridge.provide("stop_motor_x", stop_motor_x);
   Bridge.provide("stop_motor_y", stop_motor_y);
-  Bridge.provide("stop_motor_z", stop_motor_z);
-  Bridge.provide("stop_motor_a", stop_motor_a);
 
   Bridge.provide("stop_all", stop_all);
 
   Bridge.provide("get_motor_x", get_motor_x);
   Bridge.provide("get_motor_y", get_motor_y);
-  Bridge.provide("get_motor_z", get_motor_z);
-  Bridge.provide("get_motor_a", get_motor_a);
 
   Bridge.provide("set_servo_angle", set_servo_angle);
   Bridge.provide("get_servo_angle", get_servo_angle);
@@ -129,7 +128,7 @@ void loop() {
 }
 
 // ============================================================
-// SET MOTOR (direction: -1, 0, 1)
+// SET MOTOR (direction: -1, 0, 1) — X and Y, independent
 // ============================================================
 
 void set_motor_x(int direction) {
@@ -144,20 +143,39 @@ void set_motor_y(int direction) {
   stepperY.setSpeed(directionY * Y_SPEED);
 }
 
-void set_motor_z(int direction) {
-  direction = clampDirection(direction);
-  directionZ = direction;
-  stepperZ.setSpeed(directionZ * Z_SPEED);
-}
+// ============================================================
+// JOINT CONTROL — Z and A face each other and must counter-
+// rotate to move the shared link in one direction.
+// direction: 1 = link moves one way, -1 = link moves the other,
+// 0 = stop. Z takes `direction` directly, A takes the inverse.
+// ============================================================
 
-void set_motor_a(int direction) {
+void set_joint_za(int direction) {
   direction = clampDirection(direction);
-  directionA = direction;
+
+  directionZ = direction;
+  directionA = -direction;   // A always spins opposite to Z
+
+  stepperZ.setSpeed(directionZ * Z_SPEED);
   stepperA.setSpeed(directionA * A_SPEED);
 }
 
+void stop_joint_za() {
+  directionZ = 0;
+  directionA = 0;
+  stepperZ.setSpeed(0);
+  stepperA.setSpeed(0);
+}
+
+// Returns the joint's direction as a single value from Z's
+// perspective (A is always its inverse, so Z's sign is the
+// joint's sign)
+int get_joint_za() {
+  return directionZ;
+}
+
 // ============================================================
-// STOP INDIVIDUAL MOTORS
+// STOP INDIVIDUAL MOTORS (X, Y only — Z/A stop via joint)
 // ============================================================
 
 void stop_motor_x() {
@@ -170,16 +188,6 @@ void stop_motor_y() {
   stepperY.setSpeed(0);
 }
 
-void stop_motor_z() {
-  directionZ = 0;
-  stepperZ.setSpeed(0);
-}
-
-void stop_motor_a() {
-  directionA = 0;
-  stepperA.setSpeed(0);
-}
-
 // ============================================================
 // STOP ALL
 // ============================================================
@@ -187,8 +195,7 @@ void stop_motor_a() {
 void stop_all() {
   stop_motor_x();
   stop_motor_y();
-  stop_motor_z();
-  stop_motor_a();
+  stop_joint_za();
 }
 
 // ============================================================
@@ -197,8 +204,6 @@ void stop_all() {
 
 int get_motor_x() { return directionX; }
 int get_motor_y() { return directionY; }
-int get_motor_z() { return directionZ; }
-int get_motor_a() { return directionA; }
 
 // ============================================================
 // SERVO CONTROL

@@ -27,6 +27,23 @@ def axis_controls(axis):
             set_motor(axis, -1)
 
 
+def joint_za_controls():
+    st.subheader("Z/A Joint (linked)")
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        if st.button("↻ CW", key="za_cw"):
+            Bridge.call("set_joint_za", 1)
+
+    with col2:
+        if st.button("■ Stop", key="za_stop"):
+            Bridge.call("stop_joint_za")
+
+    with col3:
+        if st.button("↺ CCW", key="za_ccw"):
+            Bridge.call("set_joint_za", -1)
+
+
 def servo_controls():
     st.subheader("Servo (Gripper)")
     angle = st.slider("Angle", min_value=0, max_value=180, value=90, key="servo_angle_slider")
@@ -36,8 +53,10 @@ def servo_controls():
 
 st.title("Robotic Arm Control")
 
-for axis in ["x", "y", "z", "a"]:
+for axis in ["x", "y"]:
     axis_controls(axis)
+
+joint_za_controls()
 
 st.divider()
 servo_controls()
