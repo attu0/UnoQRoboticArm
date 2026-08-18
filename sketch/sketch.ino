@@ -22,13 +22,21 @@ StepperMotor *motorZ;
 #define A_DIR_PIN  13
 
 // ============================================================
-// SERVO (MG996R) — separate power supply, shared ground.
+// SERVO (360° continuous rotation, metal gear) — runs for a
+// fixed 3s window then auto-stops. Non-blocking via millis().
 // ============================================================
 
 #define SERVO_PIN 9
 
+const int SERVO_STOP = 90;   // no rotation
+const int SERVO_CW   = 180;  // full speed one way
+const int SERVO_CCW  = 0;    // full speed other way
+const unsigned long SERVO_RUN_MS = 3000;  // 3 seconds
+
 Servo gripperServo;
-int servoAngle = 90;  // start centered
+int servoDirection = 0;          // -1, 0, 1 — for UI state
+bool servoRunning = false;
+unsigned long servoStopAt = 0;
 
 // ============================================================
 // FIXED MOTOR SPEEDS
@@ -93,12 +101,11 @@ void setup() {
   stepperA.setSpeed(0);
 
   gripperServo.attach(SERVO_PIN);
-  gripperServo.write(servoAngle);
+  gripperServo.write(SERVO_STOP);
 
   Bridge.provide("set_motor_x", set_motor_x);
   Bridge.provide("set_motor_y", set_motor_y);
 
-  // Z and A are now driven together as one joint — see set_joint_za()
   Bridge.provide("set_joint_za", set_joint_za);
   Bridge.provide("stop_joint_za", stop_joint_za);
   Bridge.provide("get_joint_za", get_joint_za);
@@ -111,8 +118,9 @@ void setup() {
   Bridge.provide("get_motor_x", get_motor_x);
   Bridge.provide("get_motor_y", get_motor_y);
 
-  Bridge.provide("set_servo_angle", set_servo_angle);
-  Bridge.provide("get_servo_angle", get_servo_angle);
+  Bridge.provide("set_servo_dir", set_servo_dir);
+  Bridge.provide("stop_servo", stop_servo);
+  Bridge.provide("get_servo_dir", get_servo_dir);
 }
 
 // ============================================================
@@ -124,7 +132,12 @@ void loop() {
   stepperY.runSpeed();
   stepperZ.runSpeed();
   stepperA.runSpeed();
-  // servo needs no per-loop call — Servo.write() handles PWM internally
+
+  if (servoRunning && millis() >= servoStopAt) {
+    gripperServo.write(SERVO_STOP);
+    servoRunning = false;
+    servoDirection = 0;
+  }
 }
 
 // ============================================================
@@ -146,8 +159,6 @@ void set_motor_y(int direction) {
 // ============================================================
 // JOINT CONTROL — Z and A face each other and must counter-
 // rotate to move the shared link in one direction.
-// direction: 1 = link moves one way, -1 = link moves the other,
-// 0 = stop. Z takes `direction` directly, A takes the inverse.
 // ============================================================
 
 void set_joint_za(int direction) {
@@ -167,9 +178,6 @@ void stop_joint_za() {
   stepperA.setSpeed(0);
 }
 
-// Returns the joint's direction as a single value from Z's
-// perspective (A is always its inverse, so Z's sign is the
-// joint's sign)
 int get_joint_za() {
   return directionZ;
 }
@@ -196,6 +204,7 @@ void stop_all() {
   stop_motor_x();
   stop_motor_y();
   stop_joint_za();
+  stop_servo();
 }
 
 // ============================================================
@@ -206,18 +215,38 @@ int get_motor_x() { return directionX; }
 int get_motor_y() { return directionY; }
 
 // ============================================================
-// SERVO CONTROL
+// SERVO CONTROL (360° continuous rotation, 3s auto-stop)
 // ============================================================
 
-void set_servo_angle(int angle) {
-  if (angle < 0) angle = 0;
-  if (angle > 180) angle = 180;
-  servoAngle = angle;
-  gripperServo.write(servoAngle);
+void set_servo_dir(int direction) {
+  direction = clampDirection(direction);
+
+  if (direction > 0) {
+    gripperServo.write(SERVO_CW);
+  } else if (direction < 0) {
+    gripperServo.write(SERVO_CCW);
+  } else {
+    gripperServo.write(SERVO_STOP);
+  }
+
+  servoDirection = direction;
+
+  if (direction == 0) {
+    servoRunning = false;
+  } else {
+    servoRunning = true;
+    servoStopAt = millis() + SERVO_RUN_MS;
+  }
 }
 
-int get_servo_angle() {
-  return servoAngle;
+void stop_servo() {
+  gripperServo.write(SERVO_STOP);
+  servoDirection = 0;
+  servoRunning = false;
+}
+
+int get_servo_dir() {
+  return servoDirection;
 }
 
 // ============================================================

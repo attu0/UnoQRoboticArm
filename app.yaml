@@ -1,4 +1,4 @@
-name: RoboticArm
+name: UnoQRoboticArm
 description: using cnc shiled and uno q
 ports: []
 bricks:
