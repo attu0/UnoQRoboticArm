@@ -1,2 +1,6 @@
-# ignore app cache folder
+# App cache
 .cache/
+
+# Python cache
+__pycache__/
+*.py[cod]

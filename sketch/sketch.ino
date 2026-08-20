@@ -31,7 +31,7 @@ StepperMotor *motorZ;
 const int SERVO_STOP = 90;   // no rotation
 const int SERVO_CW   = 180;  // full speed one way
 const int SERVO_CCW  = 0;    // full speed other way
-const unsigned long SERVO_RUN_MS = 3000;  // 3 seconds
+const unsigned long SERVO_RUN_MS = 10000;  // 3 seconds
 
 Servo gripperServo;
 int servoDirection = 0;          // -1, 0, 1 — for UI state
