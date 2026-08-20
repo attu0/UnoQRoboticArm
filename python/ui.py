@@ -7,20 +7,6 @@ from arduino.app_bricks.streamlit_ui import st
 import arm_control
 import vision
 
-@st.fragment(run_every=0.1)
-def vision_panel():
-    st.subheader("Camera")
-    left, right = vision.get_latest_frames()
-
-    if left is None or right is None:
-        st.info("Waiting for camera...")
-        return
-
-    c1, c2 = st.columns(2)
-    with c1:
-        st.image(left, channels="BGR", caption="Left", use_container_width=True)
-    with c2:
-        st.image(right, channels="BGR", caption="Right", use_container_width=True)
 
 def inject_mobile_styles():
     st.markdown("""
@@ -83,3 +69,61 @@ def servo_controls():
 def stop_all_button():
     if st.button("🛑 STOP ALL", type="primary", use_container_width=True):
         arm_control.stop_all()
+
+
+# ============================================================
+# PAGES
+# ============================================================
+
+def render_arm_page():
+    # Camera not needed here — stop it to free CPU for arm control
+    vision.stop_depth()
+    vision.stop_capture()
+
+    st.title("🦾 Robotic Arm Control")
+
+    axis_controls("x")
+    st.divider()
+
+    axis_controls("y")
+    st.divider()
+
+    joint_za_controls()
+    st.divider()
+
+    servo_controls()
+    st.divider()
+
+    stop_all_button()
+
+
+def render_camera_page():
+    # Only spin up capture/depth while this page is actually open
+    vision.start_capture()
+    vision.start_depth()
+
+    st.title("📷 Stereo Camera")
+
+    stitched_panel()
+    st.divider()
+    depth_panel()
+
+
+@st.fragment(run_every=0.1)
+def stitched_panel():
+    st.subheader("Stitched Stereo Feed (2560x720)")
+    frame = vision.get_stitched_frame()
+    if frame is None:
+        st.info("Waiting for camera...")
+        return
+    st.image(frame, channels="BGR", use_container_width=True)
+
+
+@st.fragment(run_every=0.3)
+def depth_panel():
+    st.subheader("Live Depth Map")
+    depth = vision.get_latest_depth()
+    if depth is None:
+        st.info("Computing depth...")
+        return
+    st.image(depth, channels="BGR", use_container_width=True)
