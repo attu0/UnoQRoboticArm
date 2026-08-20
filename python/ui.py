@@ -4,8 +4,23 @@ block and calls into arm_control for the actual hardware action.
 """
 
 from arduino.app_bricks.streamlit_ui import st
-import python.arm_control as arm_control
+import arm_control
+import vision
 
+@st.fragment(run_every=0.1)
+def vision_panel():
+    st.subheader("Camera")
+    left, right = vision.get_latest_frames()
+
+    if left is None or right is None:
+        st.info("Waiting for camera...")
+        return
+
+    c1, c2 = st.columns(2)
+    with c1:
+        st.image(left, channels="BGR", caption="Left", use_container_width=True)
+    with c2:
+        st.image(right, channels="BGR", caption="Right", use_container_width=True)
 
 def inject_mobile_styles():
     st.markdown("""

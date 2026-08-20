@@ -1,10 +1,12 @@
 from arduino.app_bricks.streamlit_ui import st
 from arduino.app_utils import App
-import python.ui as ui
-import python.vision as vision  # noqa: F401 — imported so it's wired in once built out
+import ui
+import vision
 
 st.set_page_config(page_title="Robotic Arm", layout="centered")
 ui.inject_mobile_styles()
+
+vision.start()  # begin background camera capture
 
 st.title("🦾 Robotic Arm Control")
 
@@ -20,8 +22,8 @@ st.divider()
 ui.servo_controls()
 st.divider()
 
-# vision.render_vision_panel()  # uncomment once vision.py has content
-# st.divider()
+ui.vision_panel()
+st.divider()
 
 ui.stop_all_button()
 
