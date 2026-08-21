@@ -6,6 +6,7 @@ block and calls into arm_control for the actual hardware action.
 from arduino.app_bricks.streamlit_ui import st
 import arm_control
 import vision
+import rover_control
 
 
 def inject_mobile_styles():
@@ -127,3 +128,22 @@ def depth_panel():
         st.info("Computing depth...")
         return
     st.image(depth, channels="BGR", use_container_width=True)
+
+@st.fragment(run_every=1.0)
+def rover_gps_panel():
+    st.subheader("GPS")
+    gps = rover_control.get_latest_gps()
+
+    if gps["fix"]:
+        st.success(f"Fix — {gps['sat']} satellites")
+        st.metric("Latitude", f"{gps['lat']:.6f}")
+        st.metric("Longitude", f"{gps['lng']:.6f}")
+        st.map({"lat": [gps["lat"]], "lon": [gps["lng"]]}, zoom=15)
+    else:
+        st.warning("No fix — waiting for satellites")
+
+
+def render_rover_page():
+    rover_control.start_gps_polling()
+    st.title("🛰️ Rover")
+    rover_gps_panel()
