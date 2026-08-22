@@ -6,6 +6,7 @@ block and calls into arm_control for the actual hardware action.
 from arduino.app_bricks.streamlit_ui import st
 import arm_control
 import vision
+import rover_control
 
 
 def inject_mobile_styles():
@@ -127,3 +128,51 @@ def depth_panel():
         st.info("Computing depth...")
         return
     st.image(depth, channels="BGR", use_container_width=True)
+
+@st.fragment(run_every=1.0)
+def rover_gps_panel():
+    st.subheader("GPS")
+    gps = rover_control.get_latest_gps()
+
+    if gps["fix"]:
+        st.success(f"Fix — {gps['sat']} satellites")
+        st.metric("Latitude", f"{gps['lat']:.6f}")
+        st.metric("Longitude", f"{gps['lng']:.6f}")
+        st.map({"lat": [gps["lat"]], "lon": [gps["lng"]]}, zoom=15)
+    else:
+        st.warning("No fix — waiting for satellites")
+
+def rover_dpad_controls():
+    st.subheader("Drive")
+
+    r1c1, r1c2, r1c3 = st.columns(3)
+    with r1c2:
+        if st.button("⬆️", key="rover_fwd", use_container_width=True):
+            rover_control.rover_forward()
+
+    r2c1, r2c2, r2c3 = st.columns(3)
+    with r2c1:
+        if st.button("⬅️", key="rover_left", use_container_width=True):
+            rover_control.rover_turn_left()
+    with r2c2:
+        if st.button("⏹️", key="rover_stop", use_container_width=True):
+            rover_control.stop_rover()
+    with r2c3:
+        if st.button("➡️", key="rover_right", use_container_width=True):
+            rover_control.rover_turn_right()
+
+    r3c1, r3c2, r3c3 = st.columns(3)
+    with r3c2:
+        if st.button("⬇️", key="rover_back", use_container_width=True):
+            rover_control.rover_backward()
+            
+
+def render_rover_page():
+    rover_control.start_gps_polling()
+    st.title("🛰️ Rover")
+
+    rover_dpad_controls()
+    st.divider()
+
+    rover_gps_panel()
+
