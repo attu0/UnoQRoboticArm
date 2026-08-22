@@ -9,7 +9,7 @@ import serial
 import threading
 import time
 
-MEGA_PORT = "/dev/ttyACM0"
+MEGA_PORT = "/dev/ttyMega"
 MEGA_BAUD = 115200
 GPS_POLL_INTERVAL = 1.0  # seconds
 
@@ -108,3 +108,21 @@ def get_encoders():
         return {"left": left, "right": right}
     except (IndexError, ValueError):
         return {"left": None, "right": None}
+
+ROVER_SPEED = 150  # 0-255, tune to taste
+
+def rover_forward():
+    set_motor("L", ROVER_SPEED)
+    set_motor("R", ROVER_SPEED)
+
+def rover_backward():
+    set_motor("L", -ROVER_SPEED)
+    set_motor("R", -ROVER_SPEED)
+
+def rover_turn_left():
+    set_motor("L", -ROVER_SPEED)
+    set_motor("R", ROVER_SPEED)
+
+def rover_turn_right():
+    set_motor("L", ROVER_SPEED)
+    set_motor("R", -ROVER_SPEED)
