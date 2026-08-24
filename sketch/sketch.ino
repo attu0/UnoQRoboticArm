@@ -22,21 +22,16 @@ StepperMotor *motorZ;
 #define A_DIR_PIN  13
 
 // ============================================================
-// SERVO (360° continuous rotation, metal gear) — runs for a
-// fixed 3s window then auto-stops. Non-blocking via millis().
+// SERVO (180° positional, standard servo) — gripper open/close
 // ============================================================
 
 #define SERVO_PIN 9
 
-const int SERVO_STOP = 90;   // no rotation
-const int SERVO_CW   = 180;  // full speed one way
-const int SERVO_CCW  = 0;    // full speed other way
-const unsigned long SERVO_RUN_MS = 10000;  // 3 seconds
+const int SERVO_OPEN_ANGLE  = 0;
+const int SERVO_CLOSE_ANGLE = 180;
 
 Servo gripperServo;
-int servoDirection = 0;          // -1, 0, 1 — for UI state
-bool servoRunning = false;
-unsigned long servoStopAt = 0;
+int servoAngle = SERVO_OPEN_ANGLE;  // current angle, for UI state
 
 // ============================================================
 // FIXED MOTOR SPEEDS
@@ -101,7 +96,7 @@ void setup() {
   stepperA.setSpeed(0);
 
   gripperServo.attach(SERVO_PIN);
-  gripperServo.write(SERVO_STOP);
+  gripperServo.write(servoAngle);
 
   Bridge.provide("set_motor_x", set_motor_x);
   Bridge.provide("set_motor_y", set_motor_y);
@@ -118,9 +113,8 @@ void setup() {
   Bridge.provide("get_motor_x", get_motor_x);
   Bridge.provide("get_motor_y", get_motor_y);
 
-  Bridge.provide("set_servo_dir", set_servo_dir);
-  Bridge.provide("stop_servo", stop_servo);
-  Bridge.provide("get_servo_dir", get_servo_dir);
+  Bridge.provide("set_servo_angle", set_servo_angle);
+  Bridge.provide("get_servo_angle", get_servo_angle);
 }
 
 // ============================================================
@@ -132,12 +126,8 @@ void loop() {
   stepperY.runSpeed();
   stepperZ.runSpeed();
   stepperA.runSpeed();
-
-  if (servoRunning && millis() >= servoStopAt) {
-    gripperServo.write(SERVO_STOP);
-    servoRunning = false;
-    servoDirection = 0;
-  }
+  // servo is positional — no per-loop update needed, it just
+  // holds whatever angle it was last commanded to
 }
 
 // ============================================================
@@ -204,7 +194,7 @@ void stop_all() {
   stop_motor_x();
   stop_motor_y();
   stop_joint_za();
-  stop_servo();
+  // servo has no "stop" concept now — it just holds position
 }
 
 // ============================================================
@@ -215,38 +205,18 @@ int get_motor_x() { return directionX; }
 int get_motor_y() { return directionY; }
 
 // ============================================================
-// SERVO CONTROL (360° continuous rotation, 3s auto-stop)
+// SERVO CONTROL (180° positional gripper)
 // ============================================================
 
-void set_servo_dir(int direction) {
-  direction = clampDirection(direction);
-
-  if (direction > 0) {
-    gripperServo.write(SERVO_CW);
-  } else if (direction < 0) {
-    gripperServo.write(SERVO_CCW);
-  } else {
-    gripperServo.write(SERVO_STOP);
-  }
-
-  servoDirection = direction;
-
-  if (direction == 0) {
-    servoRunning = false;
-  } else {
-    servoRunning = true;
-    servoStopAt = millis() + SERVO_RUN_MS;
-  }
+void set_servo_angle(int angle) {
+  if (angle < 0) angle = 0;
+  if (angle > 180) angle = 180;   // clamped to your 0-150 working range
+  servoAngle = angle;
+  gripperServo.write(servoAngle);
 }
 
-void stop_servo() {
-  gripperServo.write(SERVO_STOP);
-  servoDirection = 0;
-  servoRunning = false;
-}
-
-int get_servo_dir() {
-  return servoDirection;
+int get_servo_angle() {
+  return servoAngle;
 }
 
 // ============================================================

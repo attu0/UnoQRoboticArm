@@ -24,12 +24,8 @@ def stop_joint_za():
     Bridge.call("stop_joint_za")
 
 
-def set_servo_dir(direction: int):
-    Bridge.call("set_servo_dir", direction)
-
-
-def stop_servo():
-    Bridge.call("stop_servo")
+def set_servo_angle(angle: int):
+    Bridge.call("set_servo_angle", angle)
 
 
 def stop_all():
