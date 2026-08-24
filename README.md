@@ -1,127 +1,156 @@
-<div align="center">
-
-  ![Logo White](./docs/logo_white.svg#gh-dark-mode-only)
-
-</div>
-
-<div align="center">
-
-  ![Logo Black](./docs/logo_black.svg#gh-light-mode-only)
-
-</div>
-
-Andino is a fully open-source diff drive robot designed for educational purposes and low-cost applications.
-It is fully integrated with ROS 2 and it is a great base platform to improve skills over the robotics field.
-With its open-source design, anyone can modify and customize the robot to suit their specific needs.
-
 <p align="center">
-  <img src="docs/real_robot.png" width=900 />
+  <img src="assests/images/RealBuild/display.png" width="400" height="400">
 </p>
 
-_Note: For videos go to [Media](#selfie-media) section._
+# All Terrain Rover
 
-## :books: Package Summary
+Traversing rugged, unstructured terrain — agricultural fields, mining sites, hazardous exploration zones — while performing precise manipulation tasks is difficult for wheeled robots and manual human intervention alike. Field workers, disaster-response teams, and inspection personnel often need a platform that can navigate uneven ground and interact with objects (spraying, sorting, sampling) without putting a person in the risk zone.
 
-- :rocket: [`andino_bringup`](./andino_bringup): Contains mainly launch files in order to launch all related driver and nodes to be used in the real robot.
-- :robot: [`andino_hardware`](./andino_hardware): Contains information about the Andino assembly and hardware parts.
-- :ledger: [`andino_description`](./andino_description): Contains the URDF description of the robot.
-- :hammer_and_pick: [`andino_firmware`](./andino_firmware): Contains the code be run in the microcontroller for interfacing low level hardware with the SBC.
-- :gear: [`andino_base`](./andino_base): [ROS Control hardware interface](https://control.ros.org/master/doc/ros2_control/hardware_interface/doc/writing_new_hardware_interface.html) is implemented.
-- :control_knobs: [`andino_control`](./andino_control/): It launches the [`controller_manager`](https://control.ros.org/humble/doc/ros2_control/controller_manager/doc/userdoc.html) along with the [ros2 controllers](https://control.ros.org/master/doc/ros2_controllers/doc/controllers_index.html): [diff_drive_controller](https://control.ros.org/master/doc/ros2_controllers/diff_drive_controller/doc/userdoc.html) and the [joint_state_broadcaster](https://control.ros.org/master/doc/ros2_controllers/joint_state_broadcaster/doc/userdoc.html).
-- :world_map: [`andino_slam`](./andino_slam/): Provides support for SLAM with your `andino` robot.
-- :compass: [`andino_navigation`](./andino_navigation/): Navigation stack based on `nav2`.
+## How It Works
 
-## :paperclips: Related projects
+The All Terrain Rover is an Unmanned Ground Vehicle (UGV) built for navigating rough terrain while performing precise manipulation tasks. It uses a track-based locomotion system on an aluminum chassis with 3D-printed tracks, giving it smoother impact absorption and stability across uneven ground compared to wheeled platforms.
 
-Projects built upon Andino! :rocket:
+Mounted on top is a 4-DOF robotic arm, actuated by NEMA17 stepper motors and an MG996R servo through a CNC shield, capable of high-precision positional movement for tasks like object sorting, targeted spraying, and sampling.
 
-- :rocket: [`andino_ansible_config`](https://github.com/garyservin/andino_ansible_config): (**Thanks @garyservin !**): Ansible configuration to easily setup an Andino robot.
-- :computer: [`andino_gz`](https://github.com/Ekumen-OS/andino_gz): [Gazebo](https://gazebosim.org/home)(non-classic)-based simulation of the `andino` robot.
-- :lady_beetle: [`andino_webots`](https://github.com/Ekumen-OS/andino_webots): [Webots](https://github.com/cyberbotics/webots)-based simulation of the Andino robot fully integrated with ROS 2.
-- :joystick: [`andino_o3de`](https://github.com/Ekumen-OS/andino_o3de): [O3DE](https://o3de.org/)-based simulation of the Andino robot.
-- :green_circle: [`andino_isaac`](https://github.com/Ekumen-OS/andino_isaac): [Isaac Sim](https://docs.omniverse.nvidia.com/isaacsim/latest/index.html)-based simulation of the Andino robot.
-- :m: [`andino_mujoco`](https://github.com/Ekumen-OS/andino_mujoco): [MuJoCo](https://mujoco.org/)-based simulation of the Andino robot.
-- :robot: [`andino_rmf`](https://github.com/Ekumen-OS/andino_rmf): [OpenRMF](https://www.open-rmf.org/) integration of Andino simulation.
-- :test_tube: [`andino_integration_tests`](https://github.com/Ekumen-OS/andino_integration_tests): Extension to the Andino robot showing how to build integration tests.
-- :framed_picture: [`andino_lichtblick`](https://github.com/Ekumen-OS/andino_lichtblick): [Lichtblick](https://github.com/lichtblick-suite/lichtblick/) integration with Andino for web-based visualization.
-- :crab: [`andino-rs`](https://github.com/Ekumen-OS/andino-rs): Rustacean version of *andino* robot. It also provides integration with [*dora*](https://github.com/dora-rs/dora) framework for both real and simulated *andino*.
-- :nerd_face: [`robotics_essentials_ros2`](https://github.com/henki-robotics/robotics_essentials_ros2): ROS 2 Essentials material for robotic course at [*University of Eastern Finland*](https://www.uef.fi/en).
+The system is controlled through a local web dashboard hosted on the Arduino UNO Q, which streams a live video feed from an onboard stereo AR0144 camera and lets an operator teleoperate both the rover and the arm in real time. The UNO Q acts as the central brain — directly driving the arm and handling vision — while an Arduino Mega runs dedicated locomotion firmware for the tracks, executing movement commands sent from the UNO Q.
 
-## :busts_in_silhouette: Community
+## Bill of Materials
 
-[<img src="docs/discord-mark-blue.png" width=30 hspace="20"/>](https://discord.gg/tHhH32CTHu) Join our Discord and contribute to the community!
+| Component | Qty |
+|---|---|
+| Aluminium frames | 4 |
+| Bambu Lab PLA Basic — Black, 1.75mm | 3 |
+| Bambu Lab PLA Basic — Orange, 1.75mm | 1 |
+| Arduino UNO Q (4GB, ABX00173) | 1 |
+| Arduino Mega 2560 (ATmega2560, Rev3, A000067) | 1 |
+| IG45 Industrial Grade Planetary DC Geared Encoder Servo Motor | 2 |
+| Rhino MDD20A Dual DC Motor Driver (2-channel, 6–30V) | 1 |
+| NEMA17 stepper motor | 4 |
+| MG996R 180° servo motor | 1 |
+| A4988 stepper motor driver | 4 |
+| CNC shield | 1 |
+| Pro-Range IFR 32650 12.8V 6000mAh 3C 4S1P LiFePO4 battery pack | 1 |
+| Portronics MPort View Three 10-in-1 USB-C dock (100W PD, 4K HDMI, VGA, RJ45, SD/TF, USB 3.0/2.0, 3.5mm audio) | 1 |
+| AR0144 2MP stereo USB camera module (USB2.0, synchronized same-frame output, 52mm baseline, distortion-free lenses) | 1 |
 
+## System Architecture & Circuit
 
-## :pick: Robot Assembly
+### Signal Flow
 
-Visit [`andino_hardware`](./andino_hardware/) for assembly instructions.
+Rover motors → Arduino Mega
+Arduino Mega → UNO Q (via USB hub, serial)
+Robotic arm motors → CNC shield (mounted on UNO Q)
+Stereo camera → USB hub → UNO Q
 
-## :mechanical_arm: Installation
+### UNO Q:
 
-Remember to first go over the assembly instructions at [`andino_hardware`](./andino_hardware/)!
-
-### Platforms
-
-- ROS 2:
-  - Humble Hawksbill
-  - Jazzy Jalisco
-- OS:
-  - Ubuntu 22.04 Jammy Jellyfish (Humble)
-  - Ubuntu 24.04 Noble Numbat (Jazzy)
-  - Ubuntu Mate 22.04 / Ubuntu Server 24.04 (On real robot e.g: Raspberry Pi 4B)
+drives the arm directly
+talks to the Mega serially for rover control
+processes the onboard stereo depth feed
+hosts the control dashboard over Streamlit
 
 
-#### Dependencies
+### Block Diagram & Circuit Schematic
+
+<p align="center">
+  <img src="assests/images/BlockDiagram&CircuitSchematic/image.png">
+</p>
+
+<p align="center">
+  <img src="assests/images/BlockDiagram&CircuitSchematic/ckt.png" width="400" height="400">
+</p>
+
+## Code Structure
+
+- **`setup()`** — initializes the NEMA17 motors and the MG996R servo responsible for arm control
+- **OpenCV** — accesses the camera and streams the feed to the web dashboard
+- **`loop()`** — continuously drives the NEMA17 motors
+- **pyserial** — talks to the Arduino Mega and sends rover movement commands
+- **Mega firmware** — runs dedicated rover locomotion control code
+
+## Demo Video
+
+[Watch on Google Drive](https://drive.google.com/file/d/10mO3DqsJaEezeDgVusVye5emnCNlNR8r/view?usp=drive_link)
+
+## Testing & Results
+
+The stack combines several subsystems that needed to work together, so each was built and tested independently first: the robotic arm and the rover base. Both were tricky to get right.
+
+Low-level testing was done directly through the Arduino IDE Serial Monitor before integrating each subsystem into the Python control layer and bridging it into the web UI. The UI itself was comparatively straightforward to build and configure. Camera and full-system compatibility were verified through individual component testing before final integration.
+
+The result is a complete rover stack — robotic arm plus stereo camera with local depth estimation — offering high-level teleoperated control over the web, usable on both mobile and desktop.
+
+### Project Images
+
+<p align="center">
+  <img src="assests/images/RealBuild/image.png" width="400" height="400">
+</p>
+
+<p align="center">
+  <img src="assests/images/RealBuild/img2.png" width="400" height="400">
+</p>
+
+<p align="center">
+  <img src="assests/images/DepthCam/image.png">
+</p>
+
+### Demo Videos
+
+<div align="center">
+  <video src="assests/gifs/gripper.mp4" width="400" height="400" controls loop muted autoplay></video>
+</div>
+
+<div align="center">
+  <video src="assests/gifs/depth_cam.mp4" width="400" height="400" controls loop muted autoplay></video>
+</div>
+
+<div align="center">
+  <video src="assests/gifs/demo.mp4" width="400" height="400" controls loop muted autoplay></video>
+</div>
+
+<div align="center">
+  <video src="assests/gifs/rover.mp4" width="400" height="400" controls loop muted autoplay></video>
+</div>
+
+<div align="center">
+  <video src="assets/gifs/v2.mp4" width="400" height="400" controls loop muted autoplay></video>
+</div>
 
 
-#### colcon workspace
+### 3D Model / Render
 
+<p align="center">
+  <img src="assests/images/Render/arm6.png" width="400" height="400">
+</p>
 
-### Install the binaries
+<p align="center">
+  <img src="assests/images/Render/image.png" width="400" height="400">
+</p>
 
+<p align="center">
+  <img src="assests/images/Render/rover_complete_assembly7(1).png">
+</p>
 
-## :rocket: Usage
+## Challenges, Learnings & Future Improvements
 
-### Robot bringup
+### Challenges Faced
 
+The biggest challenge was assembling the complete structure without hardware failure. The track system adds mechanical complexity but is rigid enough to withstand heavy loads. Integrating the stereo camera for depth feedback was also tricky — finding a configuration where the UNO Q could sustain the load of running the rest of the stack while also computing depth maps (a much heavier workload) took real tuning; the UNO Q handles it with some lag but holds up.
 
+We also ran into trouble wiring the MG996R servo to the CNC shield. Even though the board provides 5V and ground, running jumper wires from the arm to the CNC board over that distance introduced enough resistance to cause problems.
 
-### Teleoperation
+### What We Learned & What's Next
 
+Working with the UNO Q — and using Bricks to develop faster — was a great experience and sped up a lot of the build. Looking ahead, we want to make the project ROS-compatible and fully autonomous, so the rover can navigate on its own.
 
+## :star2: Inspirational Sources
 
-#### Keyboard
+Gratitude to the open-source repositories that inspired this project — well worth exploring for further learning:
 
-
-#### Joystick
-
-
-### RViz
-
-
-## :compass: Navigation
-
-## :computer: Simulation
-
-
-## :selfie: Media
-
-### RVIZ Visualization
-
-
-
-### slam
-
-
-
-## :star2: Inspirational sources
-
-This section is dedicated to recognizing and expressing gratitude to the open-source repositories that have served as a source of inspiration for this project. We highly recommend exploring these repositories for further inspiration and learning.
-
- * [articubot_one](https://github.com/joshnewans/articubot_one)
- * [diffbot](https://github.com/ros-mobile-robots/diffbot)
- * [noah_hardware](https://github.com/GonzaCerv/noah-hardware)
- * [linorobot](https://github.com/linorobot/linorobot2)
+- [articubot_one](https://github.com/joshnewans/articubot_one)
+- [diffbot](https://github.com/ros-mobile-robots/diffbot)
+- [noah_hardware](https://github.com/GonzaCerv/noah-hardware)
+- [linorobot](https://github.com/linorobot/linorobot2)
 
 ## :raised_hands: Contributing
 
