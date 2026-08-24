@@ -54,17 +54,19 @@ def joint_za_controls():
 
 
 def servo_controls():
-    st.subheader("Gripper (3s run)")
-    c1, c2, c3 = st.columns(3)
+    st.subheader("Gripper")
+
+    c1, c2 = st.columns(2)
     with c1:
-        if st.button("↻ CW", key="servo_cw", use_container_width=True):
-            arm_control.set_servo_dir(1)
+        if st.button("🖐️ Open", key="servo_open", use_container_width=True):
+            arm_control.set_servo_angle(0)
     with c2:
-        if st.button("■ Stop", key="servo_stop", use_container_width=True):
-            arm_control.stop_servo()
-    with c3:
-        if st.button("↺ CCW", key="servo_ccw", use_container_width=True):
-            arm_control.set_servo_dir(-1)
+        if st.button("✊ Close", key="servo_close", use_container_width=True):
+            arm_control.set_servo_angle(180)
+
+    angle = st.slider("Angle", min_value=0, max_value=180, value=0, key="servo_angle_slider")
+    if st.button("Set angle", key="servo_set_angle", use_container_width=True):
+        arm_control.set_servo_angle(angle)
 
 
 def stop_all_button():
@@ -129,6 +131,7 @@ def depth_panel():
         return
     st.image(depth, channels="BGR", use_container_width=True)
 
+
 @st.fragment(run_every=1.0)
 def rover_gps_panel():
     st.subheader("GPS")
@@ -141,6 +144,7 @@ def rover_gps_panel():
         st.map({"lat": [gps["lat"]], "lon": [gps["lng"]]}, zoom=15)
     else:
         st.warning("No fix — waiting for satellites")
+
 
 def rover_dpad_controls():
     st.subheader("Drive")
@@ -165,7 +169,7 @@ def rover_dpad_controls():
     with r3c2:
         if st.button("⬇️", key="rover_back", use_container_width=True):
             rover_control.rover_backward()
-            
+
 
 def render_rover_page():
     rover_control.start_gps_polling()
@@ -175,4 +179,3 @@ def render_rover_page():
     st.divider()
 
     rover_gps_panel()
-
