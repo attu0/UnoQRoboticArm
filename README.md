@@ -97,25 +97,24 @@ The result is a complete rover stack — robotic arm plus stereo camera with loc
 ### Demo Videos
 
 <div align="center">
-  <video src="assests/gifs/gripper.mp4" width="400" height="400" controls loop muted autoplay></video>
+  <video src="https://github.com/user-attachments/assets/ab8b6f3f-bd1a-47a0-b7d3-4f8fae2617f8" width="400" height="400" autoplay loop muted playsinline></video>
 </div>
 
 <div align="center">
-  <video src="assests/gifs/depth_cam.mp4" width="400" height="400" controls loop muted autoplay></video>
+  <video src="https://github.com/user-attachments/assets/043b298f-e0c1-481a-85ee-9f2018d227ad" width="400" height="400" controls loop muted autoplay></video>
 </div>
 
 <div align="center">
-  <video src="assests/gifs/demo.mp4" width="400" height="400" controls loop muted autoplay></video>
+  <video src="https://github.com/user-attachments/assets/cd448e80-eefb-4845-b95d-a3e5185e48fe" width="400" height="400" controls loop muted autoplay></video>
 </div>
 
 <div align="center">
-  <video src="assests/gifs/rover.mp4" width="400" height="400" controls loop muted autoplay></video>
+  <video src="https://github.com/user-attachments/assets/13084e24-8b94-43ea-b201-81c94eea940b" width="400" height="400" controls loop muted autoplay></video>
 </div>
 
 <div align="center">
-  <video src="assets/gifs/v2.mp4" width="400" height="400" controls loop muted autoplay></video>
+  <video src="https://github.com/user-attachments/assets/715d3660-637e-4982-926f-8c53c7471dc0" width="400" height="400" controls loop muted autoplay></video>
 </div>
-
 
 ### 3D Model / Render
 
